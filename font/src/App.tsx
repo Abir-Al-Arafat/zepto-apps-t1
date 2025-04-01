@@ -1,9 +1,9 @@
-import Message from "./components/Message";
+import UploadFont from "./components/UploadFont";
 
 const App = () => {
   return (
     <div>
-      <Message />{" "}
+      <UploadFont />
     </div>
   );
 };
