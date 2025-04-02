@@ -3,6 +3,7 @@ import { Form } from "react-bootstrap";
 
 import { CloudUpload } from "react-bootstrap-icons";
 import FontList from "./FontList";
+import FontGroup from "./FontGroup";
 const UploadFont = () => {
   const [fonts, setFonts] = useState<{ name: string; url: string }[]>([]);
   const [error, setError] = useState("");
@@ -67,6 +68,7 @@ const UploadFont = () => {
         {error && <p className="text-danger mt-2">{error}</p>}
       </div>
       <FontList fonts={fonts} onDelete={handleDelete} />
+      <FontGroup availableFonts={fonts} />
     </div>
   );
 };
