@@ -91,17 +91,17 @@ const FontGroup: React.FC<FontGroupProps> = ({ availableFonts }) => {
         + Add Row
       </Button>
 
+      {/* Submit Button */}
+      <Button variant="primary" onClick={handleSubmit} className="mt-2 ms-2">
+        Create Group
+      </Button>
+
       {/* Validation Error */}
       {error && (
         <Alert variant="danger" className="mt-3">
           {error}
         </Alert>
       )}
-
-      {/* Submit Button */}
-      <Button variant="primary" onClick={handleSubmit} className="mt-2">
-        Create Group
-      </Button>
     </div>
   );
 };
