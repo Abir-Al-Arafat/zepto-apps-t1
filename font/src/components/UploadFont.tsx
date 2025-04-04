@@ -4,6 +4,7 @@ import { Form } from "react-bootstrap";
 import { CloudUpload } from "react-bootstrap-icons";
 import FontList from "./FontList";
 import FontGroup from "./FontGroup";
+import FontGroupsContainer from "./FontGroupsContainer";
 const UploadFont = () => {
   const [fonts, setFonts] = useState<{ name: string; url: string }[]>([]);
   const [error, setError] = useState("");
@@ -69,6 +70,7 @@ const UploadFont = () => {
       </div>
       <FontList fonts={fonts} onDelete={handleDelete} />
       <FontGroup availableFonts={fonts} />
+      <FontGroupsContainer />
     </div>
   );
 };
