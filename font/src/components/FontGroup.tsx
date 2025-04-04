@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Form, Button, Row, Col, Alert } from "react-bootstrap";
+import { XCircle } from "react-bootstrap-icons";
 
 interface Font {
   name: string;
@@ -17,6 +18,12 @@ const FontGroup: React.FC<FontGroupProps> = ({ availableFonts }) => {
 
   const handleAddRow = () => {
     setFontRows([...fontRows, { id: Date.now(), font: "" }]);
+  };
+
+  const handleRemoveRow = (id: number) => {
+    if (fontRows.length > 1) {
+      setFontRows(fontRows.filter((row) => row.id !== id));
+    }
   };
 
   const handleFontChange = (id: number, font: string) => {
@@ -58,7 +65,7 @@ const FontGroup: React.FC<FontGroupProps> = ({ availableFonts }) => {
 
       {/* Font Selection Rows */}
       {fontRows.map((row) => (
-        <Row key={row.id} className="mb-2">
+        <Row key={row.id} className="mb-2 align-items-center">
           <Col xs={1} className="d-flex align-items-center">
             ☰
           </Col>
@@ -70,7 +77,7 @@ const FontGroup: React.FC<FontGroupProps> = ({ availableFonts }) => {
               readOnly
             />
           </Col>
-          <Col xs={6}>
+          <Col xs={5}>
             <Form.Select
               value={row.font}
               onChange={(e) => handleFontChange(row.id, e.target.value)}
@@ -83,15 +90,23 @@ const FontGroup: React.FC<FontGroupProps> = ({ availableFonts }) => {
               ))}
             </Form.Select>
           </Col>
+          <Col xs={1} className="d-flex justify-content-center">
+            {fontRows.length > 1 && (
+              <XCircle
+                size={20}
+                color="red"
+                className="cursor-pointer"
+                onClick={() => handleRemoveRow(row.id)}
+              />
+            )}
+          </Col>
         </Row>
       ))}
 
-      {/* Add Row Button */}
+      {/* Buttons */}
       <Button variant="success" onClick={handleAddRow} className="mt-2">
         + Add Row
       </Button>
-
-      {/* Submit Button */}
       <Button variant="primary" onClick={handleSubmit} className="mt-2 ms-2">
         Create Group
       </Button>
