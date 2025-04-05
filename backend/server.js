@@ -75,7 +75,14 @@ const server = http.createServer((req, res) => {
       const filePath = path.join(UPLOADS_DIR, fileName);
       fs.writeFileSync(filePath, fileData, "binary");
 
-      const db = JSON.parse(fs.readFileSync(DATABASE_FILE));
+      // const db = JSON.parse(fs.readFileSync(DATABASE_FILE));
+      let db;
+      try {
+        const dbContent = fs.readFileSync(DATABASE_FILE, "utf-8") || "{}";
+        db = JSON.parse(dbContent);
+      } catch (err) {
+        db = { fonts: [] }; // Fallback in case of invalid JSON
+      }
       db.fonts.push({ name: fileName, path: `/uploads/${fileName}` });
       fs.writeFileSync(DATABASE_FILE, JSON.stringify(db, null, 2));
 
