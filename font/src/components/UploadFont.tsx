@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Form } from "react-bootstrap";
 
 import { CloudUpload } from "react-bootstrap-icons";
@@ -82,6 +82,28 @@ const UploadFont = () => {
     }
   };
 
+  const fetchFonts = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/fonts");
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        const formattedFonts = result.data.map(
+          (font: { name: string; path: string }) => ({
+            name: font.name,
+            url: `http://localhost:5000${font.path}`, // 👈 Build full font URL
+          })
+        );
+
+        setFonts(formattedFonts); // Pass this into <FontList fonts={fonts} />
+      }
+    } catch (error) {
+      console.error("Failed to fetch fonts:", error);
+    }
+  };
+  useEffect(() => {
+    fetchFonts();
+  }, []);
   const handleDelete = (fontName: string) => {
     setFonts((prevFonts) => prevFonts.filter((font) => font.name !== fontName));
   };
