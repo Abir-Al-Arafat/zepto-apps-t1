@@ -32,6 +32,20 @@ const failure = (message, error = null) => {
   };
 };
 
+function serveStaticFile(req, res) {
+  const filePath = path.join(__dirname, req.url);
+  if (filePath.startsWith(UPLOADS_DIR) && fs.existsSync(filePath)) {
+    const stream = fs.createReadStream(filePath);
+    res.writeHead(200, {
+      "Content-Type": "font/ttf",
+      "Access-Control-Allow-Origin": "http://localhost:5173",
+    });
+    stream.pipe(res);
+    return true;
+  }
+  return false;
+}
+
 function parseRequestBody(req, callback) {
   let body = "";
   req.on("data", (chunk) => (body += chunk));
@@ -55,6 +69,9 @@ const server = http.createServer((req, res) => {
     res.end();
     return;
   }
+
+  // Serve static .ttf files
+  if (serveStaticFile(req, res)) return;
   if (req.method === "POST" && req.url === "/upload") {
     const boundary = req.headers["content-type"].split("boundary=")[1];
 
