@@ -19,10 +19,14 @@ const FontList: React.FC<FontListProps> = ({ fonts, onDelete }) => {
               .replace(/\.[^/.]+$/, "")
               .replace(/[^a-zA-Z0-9]/g, "-");
 
+            console.log("sanitizedFontName", sanitizedFontName);
+            console.log("sanitizedFontName", typeof sanitizedFontName);
+
             return `
               @font-face {
                 font-family: '${sanitizedFontName}';
                 src: url('${font.url}') format('truetype');
+                font-display: swap;
               }
             `;
           })

@@ -9,6 +9,17 @@ const UploadFont = () => {
   const [fonts, setFonts] = useState<{ name: string; url: string }[]>([]);
   const [error, setError] = useState("");
 
+  console.log(
+    "fonts",
+    fonts[0]?.name.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "-")
+  );
+  console.log(
+    "fonts",
+    fonts[fonts.length - 1]?.name
+      .replace(/\.[^/.]+$/, "")
+      .replace(/[^a-zA-Z0-9]/g, "-")
+  );
+  console.log("fonts", fonts);
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
