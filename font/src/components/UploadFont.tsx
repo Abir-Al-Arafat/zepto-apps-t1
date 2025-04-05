@@ -9,28 +9,100 @@ const UploadFont = () => {
   const [fonts, setFonts] = useState<{ name: string; url: string }[]>([]);
   const [error, setError] = useState("");
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const uploadedFile = event.target.files?.[0];
-    console.log("uploadedFile", uploadedFile);
+  // const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const uploadedFile = event.target.files?.[0];
+  //   console.log("uploadedFile", uploadedFile);
 
-    if (uploadedFile && uploadedFile.name.toLowerCase().endsWith(".ttf")) {
-      const url = URL.createObjectURL(uploadedFile);
-      setFonts((prevFonts) => [...prevFonts, { name: uploadedFile.name, url }]);
-      setError("");
-    } else {
+  //   if (uploadedFile && uploadedFile.name.toLowerCase().endsWith(".ttf")) {
+  //     const url = URL.createObjectURL(uploadedFile);
+  //     setFonts((prevFonts) => [...prevFonts, { name: uploadedFile.name, url }]);
+  //     setError("");
+  //   } else {
+  //     setError("Only TTF files are allowed.");
+  //   }
+  // };
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const uploadedFile = event.target.files?.[0];
+    if (!uploadedFile) return;
+
+    if (!uploadedFile.name.toLowerCase().endsWith(".ttf")) {
       setError("Only TTF files are allowed.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", uploadedFile);
+
+    try {
+      const response = await fetch("http://localhost:5000/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (response.ok && result.success) {
+        const url = URL.createObjectURL(uploadedFile);
+        setFonts((prevFonts) => [
+          ...prevFonts,
+          { name: uploadedFile.name, url },
+        ]);
+        setError("");
+      } else {
+        setError(result.message || "Upload failed.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("An error occurred during upload.");
     }
   };
 
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+  // const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+  //   event.preventDefault();
+  //   const droppedFile = event.dataTransfer.files[0];
+  //   if (droppedFile && droppedFile.name.toLowerCase().endsWith(".ttf")) {
+  //     const url = URL.createObjectURL(droppedFile);
+  //     setFonts((prevFonts) => [...prevFonts, { name: droppedFile.name, url }]);
+  //     setError("");
+  //   } else {
+  //     setError("Only TTF files are allowed.");
+  //   }
+  // };
+
+  const handleDrop = async (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     const droppedFile = event.dataTransfer.files[0];
-    if (droppedFile && droppedFile.name.toLowerCase().endsWith(".ttf")) {
-      const url = URL.createObjectURL(droppedFile);
-      setFonts((prevFonts) => [...prevFonts, { name: droppedFile.name, url }]);
-      setError("");
-    } else {
+    if (!droppedFile) return;
+
+    if (!droppedFile.name.toLowerCase().endsWith(".ttf")) {
       setError("Only TTF files are allowed.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", droppedFile);
+
+    try {
+      const response = await fetch("http://localhost:5000/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (response.ok && result.success) {
+        const url = URL.createObjectURL(droppedFile);
+        setFonts((prevFonts) => [
+          ...prevFonts,
+          { name: droppedFile.name, url },
+        ]);
+        setError("");
+      } else {
+        setError(result.message || "Upload failed.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("An error occurred during upload.");
     }
   };
 
