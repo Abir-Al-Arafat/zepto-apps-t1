@@ -45,6 +45,16 @@ function sendJSON(res, statusCode, data) {
 
 // Create HTTP server
 const server = http.createServer((req, res) => {
+  // CORS setup
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
   if (req.method === "POST" && req.url === "/upload") {
     const boundary = req.headers["content-type"].split("boundary=")[1];
 
