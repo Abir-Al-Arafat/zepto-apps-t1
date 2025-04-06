@@ -35,7 +35,7 @@ const UploadFont = () => {
     formData.append("file", uploadedFile);
 
     try {
-      const response = await fetch("http://localhost:5000/upload", {
+      const response = await fetch("http://localhost:5001/upload", {
         method: "POST",
         body: formData,
       });
@@ -71,7 +71,7 @@ const UploadFont = () => {
     formData.append("file", droppedFile);
 
     try {
-      const response = await fetch("http://localhost:5000/upload", {
+      const response = await fetch("http://localhost:5001/upload", {
         method: "POST",
         body: formData,
       });
@@ -95,14 +95,14 @@ const UploadFont = () => {
 
   const fetchFonts = async () => {
     try {
-      const response = await fetch("http://localhost:5000/fonts");
+      const response = await fetch("http://localhost:5001/fonts");
       const result = await response.json();
 
       if (result.success && result.data) {
         const formattedFonts = result.data.map(
           (font: { name: string; path: string }) => ({
             name: font.name,
-            url: `http://localhost:5000${font.path}`, // 👈 Build full font URL
+            url: `http://localhost:5001${font.path}`, // 👈 Build full font URL
           })
         );
 
@@ -115,8 +115,31 @@ const UploadFont = () => {
   useEffect(() => {
     fetchFonts();
   }, []);
-  const handleDelete = (fontName: string) => {
-    setFonts((prevFonts) => prevFonts.filter((font) => font.name !== fontName));
+  // 🧨 DELETE API Integration
+  const handleDelete = async (fontName: string) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5001/delete-font?name=${encodeURIComponent(
+          fontName
+        )}`,
+        {
+          method: "DELETE",
+        }
+      );
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        setFonts((prevFonts) =>
+          prevFonts.filter((font) => font.name !== fontName)
+        );
+        setError("");
+      } else {
+        setError(result.message || "Failed to delete font.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("An error occurred while deleting font.");
+    }
   };
 
   return (
