@@ -5,40 +5,21 @@
       "path": "/uploads/Roboto_Condensed-Black.ttf"
     },
     {
-      "name": "OpenSans_Condensed-Bold.ttf",
-      "path": "/uploads/OpenSans_Condensed-Bold.ttf"
+      "name": "Roboto_Condensed-BlackItalic.ttf",
+      "path": "/uploads/Roboto_Condensed-BlackItalic.ttf"
     },
     {
-      "name": "OpenSans_Condensed-Italic.ttf",
-      "path": "/uploads/OpenSans_Condensed-Italic.ttf"
-    },
+      "name": "Roboto_Condensed-Bold.ttf",
+      "path": "/uploads/Roboto_Condensed-Bold.ttf"
+    }
+  ],
+  "groups": [
     {
-      "name": "Roboto_Condensed-Black.ttf",
-      "path": "/uploads/Roboto_Condensed-Black.ttf"
-    },
-    {
-      "name": "Roboto_Condensed-Italic.ttf",
-      "path": "/uploads/Roboto_Condensed-Italic.ttf"
-    },
-    {
-      "name": "Roboto_Condensed-Thin.ttf",
-      "path": "/uploads/Roboto_Condensed-Thin.ttf"
-    },
-    {
-      "name": "Roboto-SemiBoldItalic.ttf",
-      "path": "/uploads/Roboto-SemiBoldItalic.ttf"
-    },
-    {
-      "name": "Roboto-Medium.ttf",
-      "path": "/uploads/Roboto-Medium.ttf"
-    },
-    {
-      "name": "Roboto_Condensed-Regular.ttf",
-      "path": "/uploads/Roboto_Condensed-Regular.ttf"
-    },
-    {
-      "name": "Roboto_Condensed-ExtraBold.ttf",
-      "path": "/uploads/Roboto_Condensed-ExtraBold.ttf"
+      "name": "Group-66",
+      "fonts": [
+        "Roboto_Condensed-Black.ttf",
+        "Roboto_Condensed-BlackItalic.ttf"
+      ]
     }
   ]
 }
