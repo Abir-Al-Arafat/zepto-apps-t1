@@ -2,8 +2,31 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 
-const UPLOADS_DIR = path.join(__dirname, "uploads");
-const DATABASE_FILE = path.join(__dirname, "database.json");
+const envPath = path.join(__dirname, ".env");
+
+if (fs.existsSync(envPath)) {
+  const envLines = fs.readFileSync(envPath, "utf-8").split("\n");
+  envLines.forEach((line) => {
+    const trimmed = line.trim();
+    if (trimmed && !trimmed.startsWith("#")) {
+      const [key, value] = trimmed.split("=");
+      if (key && value !== undefined) {
+        process.env[key] = value.trim();
+      }
+    }
+  });
+}
+
+const UPLOADS_DIR = path.join(__dirname, process.env.UPLOADS_DIR || "uploads");
+const DATABASE_FILE = path.join(
+  __dirname,
+  process.env.DATABASE_FILE || "database.json"
+);
+const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://localhost:5174";
+const PORT = parseInt(process.env.PORT || "5001", 10);
+
+// const UPLOADS_DIR = path.join(__dirname, "uploads");
+// const DATABASE_FILE = path.join(__dirname, "database.json");
 
 // Ensure the uploads directory exists
 if (!fs.existsSync(UPLOADS_DIR)) {
@@ -38,7 +61,7 @@ function serveStaticFile(req, res) {
     const stream = fs.createReadStream(filePath);
     res.writeHead(200, {
       "Content-Type": "font/ttf",
-      "Access-Control-Allow-Origin": "http://localhost:5174",
+      "Access-Control-Allow-Origin": CORS_ORIGIN,
     });
     stream.pipe(res);
     return true;
@@ -60,10 +83,10 @@ function sendJSON(res, statusCode, data) {
 // Create HTTP server
 const server = http.createServer((req, res) => {
   // CORS setup
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5174");
+  res.setHeader("Access-Control-Allow-Origin", CORS_ORIGIN);
   res.setHeader(
     "Access-Control-Allow-Methods",
-    "GET, POST, DELETE, PUT,OPTIONS"
+    "GET, POST, DELETE, PUT, OPTIONS"
   );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
@@ -269,7 +292,7 @@ const server = http.createServer((req, res) => {
 });
 
 // Start the server
-const PORT = 5001;
+// const PORT = 5001;
 server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
