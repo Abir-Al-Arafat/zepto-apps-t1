@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Alert } from "react-bootstrap";
+import { Table, Button, Alert, Modal, Form } from "react-bootstrap";
 
 interface FontGroup {
   name: string;
@@ -9,6 +9,10 @@ interface FontGroup {
 const FontGroupList: React.FC = () => {
   const [fontGroups, setFontGroups] = useState<FontGroup[]>([]);
   const [error, setError] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<FontGroup | null>(null);
+  const [newGroupName, setNewGroupName] = useState("");
+  const [selectedFonts, setSelectedFonts] = useState<string[]>([]);
 
   const fetchGroups = async () => {
     try {
@@ -43,37 +47,56 @@ const FontGroupList: React.FC = () => {
     }
   };
 
-  const handleEdit = async (group: FontGroup) => {
-    const newTitle = prompt("Edit Group Title", group.name);
-    if (!newTitle || newTitle === group.name) return;
+  const handleEdit = (group: FontGroup) => {
+    setSelectedGroup(group);
+    setNewGroupName(group.name);
+    setSelectedFonts(group.fonts);
+    setShowModal(true);
+  };
 
-    const selectedFonts = group.fonts; // Assuming fonts won't change, else you could allow font changes as well.
+  const handleModalClose = () => setShowModal(false);
+
+  const handleModalSave = async () => {
+    if (!newGroupName.trim()) {
+      setError("Group name is required.");
+      return;
+    }
 
     try {
       const res = await fetch("http://localhost:5001/edit-group", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          oldName: group.name,
-          newName: newTitle,
+          oldName: selectedGroup?.name,
+          newName: newGroupName,
           fonts: selectedFonts,
         }),
       });
 
       const data = await res.json();
       if (data.success) {
-        // Update the group name locally after successful edit
         setFontGroups((prevGroups) =>
           prevGroups.map((g) =>
-            g.name === group.name ? { ...g, name: newTitle } : g
+            g.name === selectedGroup?.name
+              ? { ...g, name: newGroupName, fonts: selectedFonts }
+              : g
           )
         );
+        setShowModal(false); // Close modal after saving
       } else {
         setError(data.message);
       }
     } catch (err) {
       setError("Edit failed.");
     }
+  };
+
+  const handleFontSelection = (fontName: string) => {
+    setSelectedFonts((prev) =>
+      prev.includes(fontName)
+        ? prev.filter((font) => font !== fontName)
+        : [...prev, fontName]
+    );
   };
 
   useEffect(() => {
@@ -124,6 +147,50 @@ const FontGroupList: React.FC = () => {
           ))}
         </tbody>
       </Table>
+
+      {/* Modal for editing font group */}
+      {selectedGroup && (
+        <Modal show={showModal} onHide={handleModalClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Edit Font Group</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+              <Form.Group controlId="groupName">
+                <Form.Label>Group Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={newGroupName}
+                  onChange={(e) => setNewGroupName(e.target.value)}
+                />
+              </Form.Group>
+
+              <Form.Group controlId="fontSelection" className="mt-3">
+                <Form.Label>Select Fonts</Form.Label>
+                {fontGroups
+                  .flatMap((group) => group.fonts)
+                  .map((font) => (
+                    <Form.Check
+                      type="checkbox"
+                      key={font}
+                      label={font}
+                      checked={selectedFonts.includes(font)}
+                      onChange={() => handleFontSelection(font)}
+                    />
+                  ))}
+              </Form.Group>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleModalClose}>
+              Close
+            </Button>
+            <Button variant="primary" onClick={handleModalSave}>
+              Save Changes
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
     </div>
   );
 };
