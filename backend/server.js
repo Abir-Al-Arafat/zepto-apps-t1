@@ -61,7 +61,10 @@ function sendJSON(res, statusCode, data) {
 const server = http.createServer((req, res) => {
   // CORS setup
   res.setHeader("Access-Control-Allow-Origin", "http://localhost:5174");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, DELETE, PUT,OPTIONS"
+  );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") {
