@@ -20,6 +20,13 @@
         "Roboto_Condensed-Black.ttf",
         "Roboto_Condensed-BlackItalic.ttf"
       ]
+    },
+    {
+      "name": "Group-1",
+      "fonts": [
+        "Roboto_Condensed-Black.ttf",
+        "Roboto_Condensed-BlackItalic.ttf"
+      ]
     }
   ]
 }
