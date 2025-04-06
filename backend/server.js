@@ -38,7 +38,7 @@ function serveStaticFile(req, res) {
     const stream = fs.createReadStream(filePath);
     res.writeHead(200, {
       "Content-Type": "font/ttf",
-      "Access-Control-Allow-Origin": "http://localhost:5173",
+      "Access-Control-Allow-Origin": "http://localhost:5174",
     });
     stream.pipe(res);
     return true;
@@ -60,7 +60,7 @@ function sendJSON(res, statusCode, data) {
 // Create HTTP server
 const server = http.createServer((req, res) => {
   // CORS setup
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5174");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
@@ -102,7 +102,6 @@ const server = http.createServer((req, res) => {
       const filePath = path.join(UPLOADS_DIR, fileName);
       fs.writeFileSync(filePath, fileData, "binary");
 
-      // const db = JSON.parse(fs.readFileSync(DATABASE_FILE));
       let db;
       try {
         const dbContent = fs.readFileSync(DATABASE_FILE, "utf-8") || "{}";
@@ -155,13 +154,105 @@ const server = http.createServer((req, res) => {
     }
 
     sendJSON(res, 200, success("Font deleted successfully"));
+  } else if (req.method === "POST" && req.url === "/create-group") {
+    parseRequestBody(req, (body) => {
+      try {
+        const { name, fonts } = JSON.parse(body);
+
+        if (!name || !Array.isArray(fonts) || fonts.length < 2) {
+          return sendJSON(
+            res,
+            400,
+            failure("Group name and at least two fonts are required")
+          );
+        }
+
+        const db = JSON.parse(fs.readFileSync(DATABASE_FILE, "utf-8"));
+        if (!db.groups) db.groups = [];
+
+        if (db.groups.find((g) => g.name === name)) {
+          return sendJSON(res, 409, failure("Group name already exists"));
+        }
+
+        const allFontNames = db.fonts.map((f) => f.name);
+        const invalidFonts = fonts.filter((f) => !allFontNames.includes(f));
+
+        if (invalidFonts.length > 0) {
+          return sendJSON(
+            res,
+            400,
+            failure(`Invalid font names: ${invalidFonts.join(", ")}`)
+          );
+        }
+
+        db.groups.push({ name, fonts });
+        fs.writeFileSync(DATABASE_FILE, JSON.stringify(db, null, 2));
+        sendJSON(res, 201, success("Group created successfully"));
+      } catch (err) {
+        sendJSON(res, 500, failure("Failed to create group", err));
+      }
+    });
+  } else if (req.method === "PUT" && req.url === "/edit-group") {
+    parseRequestBody(req, (body) => {
+      try {
+        const { oldName, newName, fonts } = JSON.parse(body);
+
+        if (!oldName || (!newName && !fonts)) {
+          return sendJSON(res, 400, failure("Invalid edit request"));
+        }
+
+        const db = JSON.parse(fs.readFileSync(DATABASE_FILE, "utf-8"));
+        if (!db.groups) db.groups = [];
+
+        const group = db.groups.find((g) => g.name === oldName);
+        if (!group) {
+          return sendJSON(res, 404, failure("Group not found"));
+        }
+
+        if (newName) group.name = newName;
+        if (fonts) {
+          const allFontNames = db.fonts.map((f) => f.name);
+          const invalidFonts = fonts.filter((f) => !allFontNames.includes(f));
+          if (invalidFonts.length > 0) {
+            return sendJSON(
+              res,
+              400,
+              failure(`Invalid font names: ${invalidFonts.join(", ")}`)
+            );
+          }
+          group.fonts = fonts;
+        }
+
+        fs.writeFileSync(DATABASE_FILE, JSON.stringify(db, null, 2));
+        sendJSON(res, 200, success("Group updated successfully"));
+      } catch (err) {
+        sendJSON(res, 500, failure("Failed to update group", err));
+      }
+    });
+  } else if (req.method === "DELETE" && req.url.startsWith("/delete-group")) {
+    const groupName = req.url.split("?name=")[1];
+    if (!groupName) {
+      return sendJSON(res, 400, failure("Group name is required"));
+    }
+
+    const db = JSON.parse(fs.readFileSync(DATABASE_FILE, "utf-8"));
+    if (!db.groups) db.groups = [];
+
+    const groupIndex = db.groups.findIndex((g) => g.name === groupName);
+    if (groupIndex === -1) {
+      return sendJSON(res, 404, failure("Group not found"));
+    }
+
+    db.groups.splice(groupIndex, 1);
+    fs.writeFileSync(DATABASE_FILE, JSON.stringify(db, null, 2));
+    sendJSON(res, 200, success("Group deleted successfully"));
   } else {
     sendJSON(res, 404, failure("Not Found"));
   }
 });
 
 // Start the server
-const PORT = 5000;
+const PORT = 5001;
 server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
