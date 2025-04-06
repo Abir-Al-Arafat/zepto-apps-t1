@@ -9,12 +9,17 @@ interface Font {
 
 interface FontGroupProps {
   availableFonts: Font[];
+  onGroupCreated?: () => void;
 }
 
-const FontGroup: React.FC<FontGroupProps> = ({ availableFonts }) => {
+const FontGroup: React.FC<FontGroupProps> = ({
+  availableFonts,
+  onGroupCreated,
+}) => {
   const [fontRows, setFontRows] = useState([{ id: Date.now(), font: "" }]);
   const [groupTitle, setGroupTitle] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleAddRow = () => {
     setFontRows([...fontRows, { id: Date.now(), font: "" }]);
@@ -32,7 +37,7 @@ const FontGroup: React.FC<FontGroupProps> = ({ availableFonts }) => {
     );
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const selectedFonts = fontRows
       .filter((row) => row.font !== "")
       .map((row) => row.font);
@@ -42,11 +47,38 @@ const FontGroup: React.FC<FontGroupProps> = ({ availableFonts }) => {
       return;
     }
 
+    if (!groupTitle.trim()) {
+      setError("Group title is required.");
+      return;
+    }
+
     setError("");
-    console.log("Font Group Created:", {
-      title: groupTitle,
-      fonts: selectedFonts,
-    });
+    setLoading(true);
+
+    try {
+      const res = await fetch("http://localhost:5001/create-group", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: groupTitle,
+          fonts: selectedFonts,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setGroupTitle("");
+        setFontRows([{ id: Date.now(), font: "" }]);
+        onGroupCreated?.();
+      } else {
+        setError(data.message || "Failed to create group");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong while creating the group.");
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -54,7 +86,6 @@ const FontGroup: React.FC<FontGroupProps> = ({ availableFonts }) => {
       <h4>Create Font Group</h4>
       <p>You have to select at least two fonts</p>
 
-      {/* Group Title */}
       <Form.Control
         type="text"
         placeholder="Group Title"
@@ -63,12 +94,9 @@ const FontGroup: React.FC<FontGroupProps> = ({ availableFonts }) => {
         className="mb-3"
       />
 
-      {/* Font Selection Rows */}
       {fontRows.map((row) => (
         <Row key={row.id} className="mb-2 align-items-center">
-          <Col xs={1} className="d-flex align-items-center">
-            ☰
-          </Col>
+          <Col xs={1}>☰</Col>
           <Col xs={5}>
             <Form.Control
               type="text"
@@ -103,15 +131,18 @@ const FontGroup: React.FC<FontGroupProps> = ({ availableFonts }) => {
         </Row>
       ))}
 
-      {/* Buttons */}
       <Button variant="success" onClick={handleAddRow} className="mt-2">
         + Add Row
       </Button>
-      <Button variant="primary" onClick={handleSubmit} className="mt-2 ms-2">
-        Create Group
+      <Button
+        variant="primary"
+        onClick={handleSubmit}
+        className="mt-2 ms-2"
+        disabled={loading}
+      >
+        {loading ? "Creating..." : "Create Group"}
       </Button>
 
-      {/* Validation Error */}
       {error && (
         <Alert variant="danger" className="mt-3">
           {error}
