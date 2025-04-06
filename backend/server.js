@@ -246,6 +246,20 @@ const server = http.createServer((req, res) => {
     db.groups.splice(groupIndex, 1);
     fs.writeFileSync(DATABASE_FILE, JSON.stringify(db, null, 2));
     sendJSON(res, 200, success("Group deleted successfully"));
+  } else if (req.method === "GET" && req.url === "/groups") {
+    try {
+      const dbContent = fs.readFileSync(DATABASE_FILE, "utf-8") || "{}";
+      const db = JSON.parse(dbContent);
+      const groups = db.groups || [];
+
+      if (groups.length === 0) {
+        sendJSON(res, 200, success("No groups found", []));
+      } else {
+        sendJSON(res, 200, success("Groups fetched successfully", groups));
+      }
+    } catch (err) {
+      sendJSON(res, 500, failure("Failed to fetch groups", err));
+    }
   } else {
     sendJSON(res, 404, failure("Not Found"));
   }
