@@ -51,50 +51,6 @@ const FontGroup: React.FC<FontGroupProps> = ({
     );
   };
 
-  // const handleSubmit = async () => {
-  //   const selectedFonts = fontRows
-  //     .filter((row) => row.font !== "")
-  //     .map((row) => row.font);
-
-  //   if (selectedFonts.length < 2) {
-  //     setError("You must select at least two fonts.");
-  //     return;
-  //   }
-
-  //   if (!groupTitle.trim()) {
-  //     setError("Group title is required.");
-  //     return;
-  //   }
-
-  //   setError("");
-  //   setLoading(true);
-
-  //   try {
-  //     const res = await fetch("http://localhost:5001/create-group", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         name: groupTitle,
-  //         fonts: selectedFonts,
-  //       }),
-  //     });
-
-  //     const data = await res.json();
-  //     if (data.success) {
-  //       setGroupTitle("");
-  //       setFontRows([{ id: Date.now(), font: "" }]);
-  //       onGroupCreated?.();
-  //     } else {
-  //       setError(data.message || "Failed to create group");
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     setError("Something went wrong while creating the group.");
-  //   }
-
-  //   setLoading(false);
-  // };
-
   const handleSubmit = async () => {
     const selectedFonts = fontRows
       .filter((row) => row.font !== "")
@@ -212,7 +168,7 @@ const FontGroup: React.FC<FontGroupProps> = ({
         className="mt-2 ms-2"
         disabled={loading}
       >
-        {loading ? "Creating..." : "Create Group"}
+        {initialGroup ? "Edit Group" : "Create Group"}
       </Button>
 
       {error && (
