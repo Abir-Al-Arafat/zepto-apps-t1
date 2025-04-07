@@ -61,7 +61,7 @@ const FontGroupsContainer = () => {
       <FontGroup
         availableFonts={availableFonts}
         onGroupCreated={handleGroupSaved}
-        initialGroup={selectedGroup} // <-- support editing
+        initialGroup={selectedGroup}
       />
     </div>
   );
