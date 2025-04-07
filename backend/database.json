@@ -15,16 +15,31 @@
   ],
   "groups": [
     {
-      "name": "Group-66",
+      "name": "Updated-22",
+      "fonts": [
+        "Roboto_Condensed-BlackItalic.ttf",
+        "Roboto_Condensed-Bold.ttf"
+      ]
+    },
+    {
+      "name": "Group-New",
+      "fonts": [
+        "Roboto_Condensed-Bold.ttf",
+        "Roboto_Condensed-Black.ttf"
+      ]
+    },
+    {
+      "name": "Group-11",
       "fonts": [
         "Roboto_Condensed-Black.ttf",
+        "Roboto_Condensed-Bold.ttf",
         "Roboto_Condensed-BlackItalic.ttf"
       ]
     },
     {
-      "name": "Group-1",
+      "name": "G-Up",
       "fonts": [
-        "Roboto_Condensed-Black.ttf",
+        "Roboto_Condensed-Bold.ttf",
         "Roboto_Condensed-BlackItalic.ttf"
       ]
     }
