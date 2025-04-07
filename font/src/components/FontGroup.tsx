@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Form, Button, Row, Col, Alert } from "react-bootstrap";
 import { XCircle } from "react-bootstrap-icons";
 
@@ -10,16 +10,30 @@ interface Font {
 interface FontGroupProps {
   availableFonts: Font[];
   onGroupCreated?: () => void;
+  initialGroup?: { name: string; fonts: string[] };
 }
 
 const FontGroup: React.FC<FontGroupProps> = ({
   availableFonts,
   onGroupCreated,
+  initialGroup,
 }) => {
   const [fontRows, setFontRows] = useState([{ id: Date.now(), font: "" }]);
   const [groupTitle, setGroupTitle] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (initialGroup) {
+      setGroupTitle(initialGroup.name);
+      setFontRows(
+        initialGroup.fonts.map((font) => ({
+          id: Date.now() + Math.random(),
+          font,
+        }))
+      );
+    }
+  }, [initialGroup]);
 
   const handleAddRow = () => {
     setFontRows([...fontRows, { id: Date.now(), font: "" }]);
@@ -36,6 +50,50 @@ const FontGroup: React.FC<FontGroupProps> = ({
       fontRows.map((row) => (row.id === id ? { ...row, font } : row))
     );
   };
+
+  // const handleSubmit = async () => {
+  //   const selectedFonts = fontRows
+  //     .filter((row) => row.font !== "")
+  //     .map((row) => row.font);
+
+  //   if (selectedFonts.length < 2) {
+  //     setError("You must select at least two fonts.");
+  //     return;
+  //   }
+
+  //   if (!groupTitle.trim()) {
+  //     setError("Group title is required.");
+  //     return;
+  //   }
+
+  //   setError("");
+  //   setLoading(true);
+
+  //   try {
+  //     const res = await fetch("http://localhost:5001/create-group", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         name: groupTitle,
+  //         fonts: selectedFonts,
+  //       }),
+  //     });
+
+  //     const data = await res.json();
+  //     if (data.success) {
+  //       setGroupTitle("");
+  //       setFontRows([{ id: Date.now(), font: "" }]);
+  //       onGroupCreated?.();
+  //     } else {
+  //       setError(data.message || "Failed to create group");
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     setError("Something went wrong while creating the group.");
+  //   }
+
+  //   setLoading(false);
+  // };
 
   const handleSubmit = async () => {
     const selectedFonts = fontRows
@@ -56,13 +114,27 @@ const FontGroup: React.FC<FontGroupProps> = ({
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5001/create-group", {
-        method: "POST",
+      const url = initialGroup
+        ? "http://localhost:5001/edit-group"
+        : "http://localhost:5001/create-group";
+
+      const method = initialGroup ? "PUT" : "POST";
+
+      const body = initialGroup
+        ? {
+            oldName: initialGroup.name,
+            newName: groupTitle,
+            fonts: selectedFonts,
+          }
+        : {
+            name: groupTitle,
+            fonts: selectedFonts,
+          };
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: groupTitle,
-          fonts: selectedFonts,
-        }),
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
@@ -71,11 +143,11 @@ const FontGroup: React.FC<FontGroupProps> = ({
         setFontRows([{ id: Date.now(), font: "" }]);
         onGroupCreated?.();
       } else {
-        setError(data.message || "Failed to create group");
+        setError(data.message || "Failed to save group");
       }
     } catch (err) {
       console.error(err);
-      setError("Something went wrong while creating the group.");
+      setError("Something went wrong.");
     }
 
     setLoading(false);
