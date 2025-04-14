@@ -159,7 +159,7 @@ const server = http.createServer((req, res) => {
       sendJSON(res, 200, success("Fonts fetched successfully", db.fonts));
     }
   } else if (req.method === "DELETE" && req.url.startsWith("/delete-font")) {
-    const fontName = req.url.split("?name=")[1];
+    const fontName = decodeURIComponent(req.url.split("?name=")[1]);
     if (!fontName) {
       return sendJSON(res, 400, failure("Font name is required"));
     }
@@ -171,6 +171,16 @@ const server = http.createServer((req, res) => {
       return sendJSON(res, 404, failure("Font not found"));
     }
 
+    // Remove font from any groups
+    if (db.groups && Array.isArray(db.groups)) {
+      db.groups = db.groups
+        .map((group) => {
+          const newFonts = group.fonts.filter((f) => f !== fontName);
+          return { ...group, fonts: newFonts };
+        })
+        .filter((group) => group.fonts.length >= 2); // Delete group if < 2 fonts
+    }
+    // Remove the font entry
     db.fonts.splice(fontIndex, 1);
     fs.writeFileSync(DATABASE_FILE, JSON.stringify(db, null, 2));
 
