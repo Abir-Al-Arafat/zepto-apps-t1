@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
 import { Form } from "react-bootstrap";
-
 import { CloudUpload } from "react-bootstrap-icons";
 import FontList from "./FontList";
-// import FontGroup from "./FontGroup";
 import FontGroupsContainer from "./FontGroupsContainer";
+
 const UploadFont = () => {
   const [fonts, setFonts] = useState<{ name: string; url: string }[]>([]);
   const [error, setError] = useState("");
+  const [fontToDelete, setFontToDelete] = useState<null | {
+    name: string;
+    usedInGroups: string[];
+  }>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -91,35 +95,58 @@ const UploadFont = () => {
         const formattedFonts = result.data.map(
           (font: { name: string; path: string }) => ({
             name: font.name,
-            url: `http://localhost:5001${font.path}`, // 👈 Build full font URL
+            url: `http://localhost:5001${font.path}`,
           })
         );
 
-        setFonts(formattedFonts); // Pass this into <FontList fonts={fonts} />
+        setFonts(formattedFonts);
       }
     } catch (error) {
       console.error("Failed to fetch fonts:", error);
     }
   };
+
   useEffect(() => {
     fetchFonts();
   }, []);
-  // 🧨 DELETE API Integration
+
+  // 🧨 Delete Trigger - Fetch Groups Before Confirming
   const handleDelete = async (fontName: string) => {
+    try {
+      const response = await fetch("http://localhost:5001/groups");
+      const result = await response.json();
+      if (!result.success) throw new Error("Failed to fetch groups");
+
+      const groupsUsingFont = result.data
+        .filter((group: { name: string; fonts: string[] }) =>
+          group.fonts.includes(fontName)
+        )
+        .map((group: { name: string }) => group.name);
+
+      setFontToDelete({ name: fontName, usedInGroups: groupsUsingFont });
+      setShowDeleteModal(true);
+    } catch (err) {
+      console.error("Error checking font usage in groups:", err);
+      setError("Couldn't check group usage.");
+    }
+  };
+
+  // 🧨 Confirm Actual Deletion
+  const confirmDelete = async () => {
+    if (!fontToDelete) return;
+
     try {
       const response = await fetch(
         `http://localhost:5001/delete-font?name=${encodeURIComponent(
-          fontName
+          fontToDelete.name
         )}`,
-        {
-          method: "DELETE",
-        }
+        { method: "DELETE" }
       );
       const result = await response.json();
 
-      if (response.ok && result.success) {
+      if (result.success) {
         setFonts((prevFonts) =>
-          prevFonts.filter((font) => font.name !== fontName)
+          prevFonts.filter((f) => f.name !== fontToDelete.name)
         );
         setError("");
       } else {
@@ -128,6 +155,9 @@ const UploadFont = () => {
     } catch (err) {
       console.error(err);
       setError("An error occurred while deleting font.");
+    } finally {
+      setFontToDelete(null);
+      setShowDeleteModal(false);
     }
   };
 
@@ -161,9 +191,56 @@ const UploadFont = () => {
 
         {error && <p className="text-danger mt-2">{error}</p>}
       </div>
+
       <FontList fonts={fonts} onDelete={handleDelete} />
-      {/* <FontGroup availableFonts={fonts} /> */}
+
       <FontGroupsContainer />
+
+      {/* Confirmation Modal */}
+      {showDeleteModal && fontToDelete && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.5)", zIndex: 9999 }}
+        >
+          <div
+            className="bg-white rounded shadow p-4"
+            style={{ width: "90%", maxWidth: "400px" }}
+          >
+            <h5 className="text-danger">Delete Font</h5>
+            <p>
+              Are you sure you want to delete{" "}
+              <strong>{fontToDelete.name}</strong>?
+            </p>
+
+            {fontToDelete.usedInGroups.length > 0 && (
+              <div className="mb-3">
+                <p>This font is used in the following group(s):</p>
+                <ul>
+                  {fontToDelete.usedInGroups.map((group) => (
+                    <li key={group}>{group}</li>
+                  ))}
+                </ul>
+                <small className="text-danger">
+                  It will be removed from those groups. Groups with fewer than 2
+                  fonts will be deleted.
+                </small>
+              </div>
+            )}
+
+            <div className="d-flex justify-content-end gap-2 mt-3">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+              <button className="btn btn-danger" onClick={confirmDelete}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
