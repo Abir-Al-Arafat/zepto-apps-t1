@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Form, Button, Row, Col, Alert } from "react-bootstrap";
 import { XCircle } from "react-bootstrap-icons";
 
-interface Font {
+export interface Font {
   name: string;
   url: string;
 }
@@ -139,11 +139,24 @@ const FontGroup: React.FC<FontGroupProps> = ({
               onChange={(e) => handleFontChange(row.id, e.target.value)}
             >
               <option value="">Select a Font</option>
-              {availableFonts.map((font, index) => (
+              {/* {availableFonts.map((font, index) => (
                 <option key={index} value={font.name}>
                   {font.name}
                 </option>
-              ))}
+              ))} */}
+              {availableFonts
+                .filter(
+                  (font) =>
+                    row.font === font.name || // Keep current selected font visible
+                    !fontRows.some(
+                      (r) => r.font === font.name && r.id !== row.id // Exclude if selected elsewhere
+                    )
+                )
+                .map((font, index) => (
+                  <option key={index} value={font.name}>
+                    {font.name}
+                  </option>
+                ))}
             </Form.Select>
           </Col>
           <Col xs={1} className="d-flex justify-content-center">
@@ -170,6 +183,21 @@ const FontGroup: React.FC<FontGroupProps> = ({
       >
         {initialGroup ? "Edit Group" : "Create Group"}
       </Button>
+
+      {initialGroup && (
+        <Button
+          variant="secondary"
+          onClick={() => {
+            setGroupTitle("");
+            setFontRows([{ id: Date.now(), font: "" }]);
+            setError("");
+            onGroupCreated?.();
+          }}
+          className="mt-2 ms-2"
+        >
+          Cancel
+        </Button>
+      )}
 
       {error && (
         <Alert variant="danger" className="mt-3">
