@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Form, Button, Row, Col, Alert } from "react-bootstrap";
 import { XCircle } from "react-bootstrap-icons";
 
-interface Font {
+export interface Font {
   name: string;
   url: string;
 }

@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Form } from "react-bootstrap";
 import { CloudUpload } from "react-bootstrap-icons";
+import { Font } from "./FontGroup";
 import FontList from "./FontList";
 import FontGroupsContainer from "./FontGroupsContainer";
 
 const UploadFont = () => {
-  const [fonts, setFonts] = useState<{ name: string; url: string }[]>([]);
+  const [fonts, setFonts] = useState<Font[]>([]);
   const [error, setError] = useState("");
   const [fontToDelete, setFontToDelete] = useState<null | {
     name: string;
