@@ -1,47 +1,4 @@
 {
-  "fonts": [
-    {
-      "name": "Roboto_Condensed-Black.ttf",
-      "path": "/uploads/Roboto_Condensed-Black.ttf"
-    },
-    {
-      "name": "Roboto_Condensed-BlackItalic.ttf",
-      "path": "/uploads/Roboto_Condensed-BlackItalic.ttf"
-    },
-    {
-      "name": "Roboto_Condensed-Bold.ttf",
-      "path": "/uploads/Roboto_Condensed-Bold.ttf"
-    }
-  ],
-  "groups": [
-    {
-      "name": "Updated-22",
-      "fonts": [
-        "Roboto_Condensed-BlackItalic.ttf",
-        "Roboto_Condensed-Bold.ttf"
-      ]
-    },
-    {
-      "name": "Group-New",
-      "fonts": [
-        "Roboto_Condensed-Bold.ttf",
-        "Roboto_Condensed-Black.ttf"
-      ]
-    },
-    {
-      "name": "Group-11",
-      "fonts": [
-        "Roboto_Condensed-Black.ttf",
-        "Roboto_Condensed-Bold.ttf",
-        "Roboto_Condensed-BlackItalic.ttf"
-      ]
-    },
-    {
-      "name": "G-Up",
-      "fonts": [
-        "Roboto_Condensed-Bold.ttf",
-        "Roboto_Condensed-BlackItalic.ttf"
-      ]
-    }
-  ]
+  "fonts": [],
+  "groups": []
 }
