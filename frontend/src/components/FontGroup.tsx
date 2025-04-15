@@ -184,6 +184,21 @@ const FontGroup: React.FC<FontGroupProps> = ({
         {initialGroup ? "Edit Group" : "Create Group"}
       </Button>
 
+      {initialGroup && (
+        <Button
+          variant="secondary"
+          onClick={() => {
+            setGroupTitle("");
+            setFontRows([{ id: Date.now(), font: "" }]);
+            setError("");
+            onGroupCreated?.();
+          }}
+          className="mt-2 ms-2"
+        >
+          Cancel
+        </Button>
+      )}
+
       {error && (
         <Alert variant="danger" className="mt-3">
           {error}
